@@ -1,8 +1,6 @@
 package routers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rivaldiheriyan/managementsystem/controllers"
 	"github.com/rivaldiheriyan/managementsystem/middlewares"
@@ -13,12 +11,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine{
 	router := gin.Default()
 	LoginController := &controllers.LoginDB{DB: db}
 	
-
-	router.GET("/", func(c *gin.Context){
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello world",
-		})
-	})
+	// Tambahkan CORS Middleware di sini
+	router.Use(middlewares.CORSMiddleware())
 
 
 	router.POST("/login", LoginController.Login)

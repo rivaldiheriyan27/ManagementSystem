@@ -20,7 +20,11 @@ type BorrowDb struct {
 func (bc *BorrowDb) BorrowBook(c *gin.Context) {
 	var input dto.BorrowBookRequest
 
-	// Ambil user ID dari context (dari JWT Middleware)
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body", "error": err.Error()})
+		return
+	}
+
 	userIDStr, exists := c.Get("userUUID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
@@ -28,14 +32,13 @@ func (bc *BorrowDb) BorrowBook(c *gin.Context) {
 	}
 	userID, _ := uuid.Parse(userIDStr.(string))
 
-	// Parse Book UUID
+
 	bookUUID, err := uuid.Parse(input.BookID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid book_id"})
 		return
 	}
 
-	// Cek apakah user sudah pinjam buku ini dan belum dikembalikan
 	var existingBorrow models.Borrow
 	err = bc.DB.Where("user_id = ? AND book_id = ? AND returned_at IS NULL", userID, bookUUID).First(&existingBorrow).Error
 	if err == nil {
@@ -43,7 +46,6 @@ func (bc *BorrowDb) BorrowBook(c *gin.Context) {
 		return
 	}
 
-	// Cek apakah buku tersedia
 	var book models.Book
 	if err := bc.DB.First(&book, "book_id = ?", bookUUID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": "Book not found"})

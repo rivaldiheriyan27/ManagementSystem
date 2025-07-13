@@ -120,5 +120,6 @@ func (db *LoginDB) Login(c *gin.Context) {
 			"username": dbResult.Username,
 			"email":    dbResult.Email,
 		},
+		"role": dbResult.Role,
 	})
 }

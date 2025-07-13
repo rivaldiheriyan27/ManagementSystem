@@ -3,7 +3,7 @@ package dto
 import "github.com/google/uuid"
 
 type ListBookResponse struct{
-	BookID   	uuid.UUID `json:"order_id"`
+	BookID   	uuid.UUID `json:"book_id"`
 	Title   	string    `json:"title"`
 	Description string    `json:"description"`
 }
